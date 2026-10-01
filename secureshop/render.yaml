@@ -1,0 +1,20 @@
+# Render Blueprint Specification for SecureShop
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: secureshop
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt && python init_db.py && python generate_assets.py
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: RENDER
+        value: "true"
+      - key: SECURITY_MODE
+        value: fixed
+      - key: SECRET_KEY
+        generateValue: true

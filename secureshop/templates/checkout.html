@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - SecureShop{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h1 class="section-title">Checkout & Order Finalization</h1>
+  <a href="{{ url_for('cart_view') }}" class="btn btn-secondary btn-sm">&larr; Back to Cart</a>
+</div>
+
+<div class="cart-layout">
+  <!-- CHECKOUT FORM -->
+  <div class="cart-card">
+    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 20px;">Shipping & Contact Information</h3>
+    
+    <form action="{{ url_for('checkout') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label" for="full_name">Recipient Full Name</label>
+        <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user['name'] if user else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="address">Street Address</label>
+        <input type="text" id="address" name="address" class="form-control" placeholder="104 Willow Way, Apt 4B" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label" for="city">City</label>
+          <input type="text" id="city" name="city" class="form-control" placeholder="Seattle" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="state">State</label>
+          <input type="text" id="state" name="state" class="form-control" placeholder="WA" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="zip">Zip / Postal</label>
+          <input type="text" id="zip" name="zip" class="form-control" placeholder="98101" required>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin: 24px 0 16px;">Payment Method (Lab Sandbox)</h3>
+      <div style="background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <input type="radio" id="pay_card" name="payment_method" value="card" checked>
+          <label for="pay_card" style="font-weight: 600; font-size: 0.9rem;">Simulated Credit Card (Educational Lab Mode)</label>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--muted);">
+          No real financial transactions take place. This order will be recorded in the local SecureShop database for order history and authorization testing.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block">
+        Authorize & Place Order (${{ "%.2f"|format(total) }})
+      </button>
+    </form>
+  </div>
+
+  <!-- ORDER REVIEW SIDEBAR -->
+  <div class="summary-card">
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Order Summary</h3>
+    
+    <div style="max-height: 250px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      {% for item in cart_items %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem;">
+          <div>
+            <strong>{{ item['name'] }}</strong>
+            <div style="color: var(--muted); font-size: 0.75rem;">Qty: {{ item['quantity'] }} &times; ${{ "%.2f"|format(item['price']) }}</div>
+          </div>
+          <span style="font-weight: 600;">${{ "%.2f"|format(item['price'] * item['quantity']) }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span>${{ "%.2f"|format(subtotal) }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Shipping</span>
+      <span>{% if shipping == 0 %}FREE{% else %}${{ "%.2f"|format(shipping) }}{% endif %}</span>
+    </div>
+    <div class="summary-row">
+      <span>Tax</span>
+      <span>${{ "%.2f"|format(tax) }}</span>
+    </div>
+    <div class="summary-row total">
+      <span>Total</span>
+      <span>${{ "%.2f"|format(total) }}</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

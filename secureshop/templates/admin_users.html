@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - SecureShop Admin{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">User Account Management</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">Listing of all registered user identities and access roles</p>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-sm">&larr; Dashboard</a>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Full Name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>System Role</th>
+        <th>Registered At</th>
+        <th>Total Orders</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td><code>#{{ u['id'] }}</code></td>
+          <td><strong>{{ u['name'] }}</strong></td>
+          <td><code>{{ u['username'] }}</code></td>
+          <td>{{ u['email'] }}</td>
+          <td>
+            <span class="badge {% if u['role'] == 'admin' %}badge-warning{% else %}badge-info{% endif %}">
+              {{ u['role']|upper }}
+            </span>
+          </td>
+          <td>{{ u['created_at'][:16] }}</td>
+          <td>
+            <strong>{{ u['order_count'] }}</strong> orders
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: 0.85rem; color: var(--slate);">
+  <strong>Privacy & Security Compliance Note:</strong>
+  In adherence to OWASP recommendations, administrative views do not expose password hashes or sensitive authentication tokens in plain text.
+</div>
+{% endblock %}

@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+
+{% block title %}Security Testing Lab - SecureShop{% endblock %}
+
+{% block content %}
+<!-- LAB HEADER & POSTURE TOGGLE -->
+<div class="lab-header">
+  <div class="lab-title">
+    <h1>🧪 SecureShop Security Lab</h1>
+    <p>Local-Only Educational Cybersecurity Control Panel | OWASP Top 10 Verification</p>
+  </div>
+
+  <div class="mode-toggle-box">
+    <div>
+      <div class="switch-label">CURRENT SECURITY POSTURE:</div>
+      <div style="font-size: 1.1rem; font-weight: 800; color: {% if security_mode == 'vulnerable' %}#EF4444{% else %}#10B981{% endif %};">
+        {{ security_mode|upper }} STATE {% if is_public_deploy %}(ENFORCED){% endif %}
+      </div>
+    </div>
+    {% if is_public_deploy %}
+      <div style="font-size: 0.8rem; color: #94A3B8; text-align: right; max-width: 280px;">
+        🔒 <strong>Public Cloud Lock:</strong> Vulnerable mode disabled on Render for safety. Run on localhost for exploit testing.
+      </div>
+    {% else %}
+      <form action="{{ url_for('toggle_security_mode') }}" method="POST">
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <button type="submit" class="btn {% if security_mode == 'vulnerable' %}btn-success{% else %}btn-danger{% endif %}">
+          {% if security_mode == 'vulnerable' %}
+            🛡️ Apply All Fixes (Switch to FIXED)
+          {% else %}
+            ⚠️ Revert to VULNERABLE Mode
+          {% endif %}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- LAB ENVIRONMENT SUMMARY CARDS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 30px;">
+  <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;">
+    <div style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">Target Environment</div>
+    {% if is_public_deploy %}
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-top: 4px;">Render Cloud Deployment</div>
+      <div style="font-size: 0.75rem; color: var(--success); margin-top: 2px;">Public production safety enforced (Fixed Mode)</div>
+    {% else %}
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-top: 4px;">http://127.0.0.1:8080</div>
+      <div style="font-size: 0.75rem; color: var(--success); margin-top: 2px;">Localhost sandbox isolation enforced</div>
+    {% endif %}
+  </div>
+
+  <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;">
+    <div style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">Assigned Test Accounts</div>
+    <div style="font-size: 0.9rem; font-weight: 600; color: var(--dark); margin-top: 4px;">
+      User: <code>user</code> | Alice: <code>alice</code> | Admin: <code>admin</code>
+    </div>
+    <div style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Passwords: User@123, Alice@123, Admin@123</div>
+  </div>
+
+  <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;">
+    <div style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">DAST Scanner Readiness</div>
+    <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-top: 4px;">OWASP ZAP 2.14+ Ready</div>
+    <div style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Spider, Active Scan, and Manual Validation</div>
+  </div>
+</div>
+
+<!-- TABS FOR VULNERABILITIES VS AUDIT LOGS -->
+<div style="margin-bottom: 24px; border-bottom: 2px solid var(--border); display: flex; gap: 20px;">
+  <a href="#vulnerabilities" class="nav-link active" style="font-size: 1.05rem; font-weight: 700; padding: 10px 0; border-bottom: 2px solid var(--primary); margin-bottom: -2px;">
+    Vulnerability Breakdown (6 Categories)
+  </a>
+  <a href="#audit-logs" class="nav-link" style="font-size: 1.05rem; font-weight: 700; padding: 10px 0; color: var(--muted);">
+    Live Security Audit Log (A09)
+  </a>
+</div>
+
+<!-- 6 VULNERABILITY CARDS -->
+<div class="vuln-cards-grid" id="vulnerabilities">
+
+  <!-- 1. A01 Broken Access Control -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A01:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">Broken Access Control (IDOR)</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Location</div>
+        <code>GET /orders/&lt;order_id&gt;</code> (Order Details Invoice)
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Why it exists (Root Cause)</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          The application accepts an object identifier directly from the URL parameter and queries the database without validating whether the currently authenticated session owns the requested resource or possesses administrative authorization.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Security Impact</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          Horizontal privilege escalation. An authenticated customer (e.g. <code>user</code>) can enumerate order IDs and view sensitive billing details, customer names, emails, and confidential shipping destinations of other customers (e.g. <code>alice</code>).
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Safe Validation Procedure</div>
+        <ol style="font-size: 0.85rem; margin-left: 20px; line-height: 1.6; color: var(--slate);">
+          <li>Log in as standard customer <code>user</code> (owns Order #1 and #3).</li>
+          <li>Navigate to your order list at <code>/orders</code> and click "View Invoice" on Order #1.</li>
+          <li>Manually alter the URL in your browser address bar from <code>/orders/1</code> to <code>/orders/2</code> (Order #2 belongs to <code>alice</code>).</li>
+          <li>
+            <strong>Observed in Vulnerable Mode:</strong> Alice's private invoice and confidential Texas delivery address are displayed.
+          </li>
+          <li>
+            <strong>Observed in Fixed Mode:</strong> The server blocks access, returns <code>403 Forbidden</code>, and writes an unauthorized attempt to the audit log.
+          </li>
+        </ol>
+        <div class="code-box">
+          <span>http://127.0.0.1:8080/orders/2</span>
+          <button class="code-copy-btn" onclick="copyToClipboard('http://127.0.0.1:8080/orders/2', this)">Copy URL</button>
+        </div>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Enforced strict server-side ownership authorization:
+          <code>if order['user_id'] != session['user_id'] and session['role'] != 'admin': abort(403)</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. A03 Injection -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A03:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">SQL Injection (Search Functionality)</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Location</div>
+        <code>GET /products?q=&lt;payload&gt;</code> (Product Search Query)
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Why it exists (Root Cause)</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          The search endpoint dynamically formats the SQL query string using Python f-strings / raw string concatenation without parameterized placeholders.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Security Impact</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          Untrusted input can break out of the SQL syntax context, allowing arbitrary data queries or information extraction across tables within the local database.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Safe Validation Procedure</div>
+        <ol style="font-size: 0.85rem; margin-left: 20px; line-height: 1.6; color: var(--slate);">
+          <li>Open the Search bar on the top navigation bar or navigate to <code>/products</code>.</li>
+          <li>Enter the safe local boolean test payload: <code>' OR '1'='1' --</code> or <code>' OR 1=1 --</code>.</li>
+          <li>
+            <strong>Observed in Vulnerable Mode:</strong> The SQL query evaluates to TRUE for all rows, returning the entire product database regardless of search terms.
+          </li>
+          <li>
+            <strong>Observed in Fixed Mode:</strong> The parameterized query treats the entire string as a literal text search for <code>' OR '1'='1' --</code>, returning zero matches safely.
+          </li>
+        </ol>
+        <div class="code-box">
+          <span>' OR 1=1 --</span>
+          <button class="code-copy-btn" onclick="copyToClipboard('\' OR 1=1 --', this)">Copy Payload</button>
+        </div>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Replaced dynamic string formatting with parameterized prepared query:
+          <code>cursor.execute("SELECT * FROM products WHERE name LIKE ? OR description LIKE ?", (f"%{q}%", f"%{q}%"))</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. A05 Security Misconfiguration -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A05:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">Security Misconfiguration (Debug Mode & Missing Headers)</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Location</div>
+        Application server runtime configuration, HTTP response headers, <code>GET /debug/crash-test</code>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Why it exists (Root Cause)</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          The application runs with Flask <code>DEBUG=True</code> and lacks standard defensive HTTP response headers (CSP, X-Frame-Options, X-Content-Type-Options). Unhandled exceptions expose raw Python stack traces and file paths.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Security Impact</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          Information leakage regarding directory structure, Python runtime version, internal variable states, and vulnerability to UI redressing (Clickjacking) due to missing frame restrictions.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Safe Validation Procedure</div>
+        <ol style="font-size: 0.85rem; margin-left: 20px; line-height: 1.6; color: var(--slate);">
+          <li>Navigate to the test exception route: <a href="{{ url_for('debug_crash') }}" target="_blank">/debug/crash-test</a>.</li>
+          <li>
+            <strong>Observed in Vulnerable Mode:</strong> Full interactive traceback and internal variables are displayed to the client; HTTP response headers omit security controls.
+          </li>
+          <li>
+            <strong>Observed in Fixed Mode:</strong> Clean, sanitized 500 error page displayed without stack traces; HTTP headers include <code>X-Frame-Options: DENY</code> and <code>Content-Security-Policy</code>.
+          </li>
+        </ol>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Set <code>debug=False</code>, registered custom error handlers, and injected hardened headers via <code>@app.after_request</code> middleware.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. A06 Vulnerable and Outdated Components -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A06:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">Vulnerable and Outdated Components</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Component & Version</div>
+        <code>Werkzeug==2.2.2</code> (in <code>requirements-vulnerable.txt</code>)
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Published Advisory Reference</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          CVE-2023-25577 (High DoS via multipart form parsing), CVE-2023-46136 (Resource exhaustion DoS).
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Validation Procedure (SCA / Audit)</div>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-bottom: 6px;">
+          Run Python dependency vulnerability scanners against the vulnerable requirement specification:
+        </p>
+        <div class="code-box">
+          <span>pip-audit -r requirements-vulnerable.txt</span>
+          <button class="code-copy-btn" onclick="copyToClipboard('pip-audit -r requirements-vulnerable.txt', this)">Copy Command</button>
+        </div>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Upgraded dependency baseline in <code>requirements-fixed.txt</code> to <code>Werkzeug&gt;=3.0.3</code> and <code>Flask&gt;=3.0.0</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. A07 Authentication / Session Weakness -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A07:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">Identification & Authentication Failures</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Location</div>
+        Session cookie flags (<code>session</code> cookie) & User Registration password policy (<code>/register</code>)
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Why it exists (Root Cause)</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          Session cookies created without <code>HttpOnly</code> or <code>SameSite</code> attributes; registration does not enforce password length or complexity rules.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Safe Validation Procedure</div>
+        <ol style="font-size: 0.85rem; margin-left: 20px; line-height: 1.6; color: var(--slate);">
+          <li>Open browser Developer Tools (F12) &rarr; Application / Storage &rarr; Cookies &rarr; <code>http://127.0.0.1:8080</code>.</li>
+          <li>Inspect the <code>session</code> cookie flags.</li>
+          <li>
+            <strong>Observed in Vulnerable Mode:</strong> <code>HttpOnly</code> is false, <code>SameSite</code> is None, allowing client JavaScript access via <code>document.cookie</code>.
+          </li>
+          <li>
+            <strong>Observed in Fixed Mode:</strong> <code>HttpOnly</code> is set to True (blocking JavaScript theft), <code>SameSite=Lax</code>.
+          </li>
+        </ol>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Configured <code>app.config['SESSION_COOKIE_HTTPONLY'] = True</code>, <code>SESSION_COOKIE_SAMESITE = 'Lax'</code>, and added regex password complexity verification on signup.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. A09 Security Logging and Monitoring Failures -->
+  <div class="vuln-card {{ 'vulnerable' if security_mode == 'vulnerable' else 'fixed' }}">
+    <div class="vuln-card-header">
+      <div>
+        <span class="vuln-category-tag">OWASP A09:2021</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; display: inline-block; margin-left: 8px;">Security Logging and Monitoring Failures</h2>
+      </div>
+      <span class="badge {{ 'badge-danger' if security_mode == 'vulnerable' else 'badge-success' }}">
+        {{ 'VULNERABLE' if security_mode == 'vulnerable' else 'REMEDIATED' }}
+      </span>
+    </div>
+
+    <div class="vuln-body">
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Affected Location</div>
+        Application event logging (Authentication, Authorization, Administrative changes)
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Why it exists (Root Cause)</div>
+        <p style="font-size: 0.9rem; color: var(--slate);">
+          Critical security events (failed logins, unauthorized access attempts, admin actions) occur silently without producing an audit trail, making incident detection impossible.
+        </p>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Safe Validation Procedure</div>
+        <ol style="font-size: 0.85rem; margin-left: 20px; line-height: 1.6; color: var(--slate);">
+          <li>Trigger a deliberate failed login by submitting an incorrect password at <code>/login</code>.</li>
+          <li>Attempt an unauthorized IDOR access to <code>/orders/2</code> while logged in as <code>user</code>.</li>
+          <li>
+            <strong>Observed in Vulnerable Mode:</strong> No security logs are generated; administrators are unaware of hostile probing.
+          </li>
+          <li>
+            <strong>Observed in Fixed Mode:</strong> High-severity events are immediately appended to <code>logs/security.log</code> and visible in the Audit Log section below.
+          </li>
+        </ol>
+      </div>
+
+      <div class="vuln-prop">
+        <div class="vuln-prop-title">Remediation Implementation</div>
+        <p style="font-size: 0.85rem; color: var(--slate);">
+          Implemented structured security event logging helper <code>log_security_event()</code> writing to both SQLite table and persistent file <code>logs/security.log</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LIVE AUDIT LOG VIEWER (A09 DEMO) -->
+<div class="section-header" id="audit-logs" style="margin-top: 50px;">
+  <div>
+    <h2 class="section-title">Live Security Audit Log (A09 Verification)</h2>
+    <p style="font-size: 0.9rem; color: var(--muted);">Direct view of records written to <code>logs/security.log</code> and database</p>
+  </div>
+  <a href="{{ url_for('security_lab') }}" class="btn btn-secondary btn-sm">Refresh Log</a>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Event Identifier</th>
+        <th>Actor</th>
+        <th>Client IP</th>
+        <th>Severity</th>
+        <th>Audit Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr>
+          <td style="font-size: 0.8rem; font-family: monospace;">{{ log['timestamp'] }}</td>
+          <td><code style="font-size: 0.8rem; font-weight: 700;">{{ log['event_type'] }}</code></td>
+          <td>{{ log['username'] or 'ANONYMOUS' }}</td>
+          <td style="font-size: 0.8rem; font-family: monospace;">{{ log['ip_address'] }}</td>
+          <td>
+            <span class="badge {% if log['severity'] == 'CRITICAL' %}badge-danger{% elif log['severity'] == 'WARNING' %}badge-warning{% else %}badge-info{% endif %}">
+              {{ log['severity'] }}
+            </span>
+          </td>
+          <td style="font-size: 0.85rem;">{{ log['details'] }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">
+            No audit records currently available. (Events are actively recorded when Fixed Mode is enabled).
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

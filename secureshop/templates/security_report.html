@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}OWASP ZAP Assessment Report - SecureShop{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">📊 OWASP ZAP Security Assessment Report</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">DAST Scan Results, Vulnerability Investigations & Retest Tracker</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="#add-finding" class="btn btn-primary btn-sm">+ Record New ZAP Alert</a>
+    <a href="{{ url_for('security_lab') }}" class="btn btn-secondary btn-sm">🧪 Open Security Lab</a>
+  </div>
+</div>
+
+<!-- SCAN TARGET METADATA SUMMARY CARD -->
+<div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 30px; box-shadow: var(--shadow-sm);">
+  <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+    Scan Profile & Execution Parameters
+  </h3>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.9rem;">
+    <div>
+      <span style="color: var(--muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Target Application</span>
+      <div style="font-weight: 700;">SecureShop Local Lab</div>
+      <code>http://127.0.0.1:8080</code>
+    </div>
+
+    <div>
+      <span style="color: var(--muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Scan Date</span>
+      <div style="font-weight: 700;">October 2026 (Lab Session)</div>
+      <span style="font-size: 0.8rem; color: var(--muted);">Pre-remediation vs Post-remediation</span>
+    </div>
+
+    <div>
+      <span style="color: var(--muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Assessment Tool</span>
+      <div style="font-weight: 700;">OWASP ZAP 2.14+ (DAST)</div>
+      <span style="font-size: 0.8rem; color: var(--muted);">Spider + Active Scan + Manual Proxy</span>
+    </div>
+
+    <div>
+      <span style="color: var(--muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Total Recorded Findings</span>
+      <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">{{ findings|length }}</div>
+      <span style="font-size: 0.75rem; color: var(--muted);">Lab placeholders + custom scan alerts</span>
+    </div>
+  </div>
+</div>
+
+<!-- FINDINGS TABLE (OWASP ZAP & MANUAL DAST) -->
+<div class="section-header">
+  <div>
+    <h2 style="font-size: 1.25rem; font-weight: 700;">ZAP Findings & Alert Inventory</h2>
+    <p style="font-size: 0.85rem; color: var(--muted);">
+      Controlled findings mapped to OWASP categories. Pre-seeded with assignment placeholders.
+    </p>
+  </div>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Alert Name</th>
+        <th>Severity</th>
+        <th>OWASP Category</th>
+        <th>Affected URL</th>
+        <th>Evidence / Output</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+        <tr>
+          <td><code>#{{ f['id'] }}</code></td>
+          <td><strong>{{ f['alert_name'] }}</strong></td>
+          <td>
+            {% if f['severity'] == 'High' %}
+              <span class="badge badge-danger">High</span>
+            {% elif f['severity'] == 'Medium' %}
+              <span class="badge badge-warning">Medium</span>
+            {% elif f['severity'] == 'Low' %}
+              <span class="badge badge-info">Low</span>
+            {% else %}
+              <span class="badge badge-secondary">Info</span>
+            {% endif %}
+          </td>
+          <td style="font-size: 0.8rem;"><code>{{ f['owasp_category'] }}</code></td>
+          <td style="font-size: 0.8rem; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <code>{{ f['affected_url'] }}</code>
+          </td>
+          <td style="font-size: 0.8rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted);">
+            {{ f['evidence'] }}
+          </td>
+          <td>
+            {% if 'Vulnerable' in f['status'] or 'Present' in f['status'] %}
+              <span class="badge badge-danger">{{ f['status'] }}</span>
+            {% elif 'Fixed' in f['status'] or 'Remediated' in f['status'] %}
+              <span class="badge badge-success">{{ f['status'] }}</span>
+            {% else %}
+              <span class="badge badge-warning">{{ f['status'] }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <form action="{{ url_for('security_report_delete', finding_id=f['id']) }}" method="POST" style="display: inline;">
+              <button type="submit" class="btn btn-sm btn-secondary" style="color: var(--danger); padding: 2px 6px;" data-confirm="Remove this finding record?">&times;</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- STRUCTURED INVESTIGATION TEMPLATES (WHAT, WHERE, WHY, IMPACT, EVIDENCE, REMEDIATION, RETEST) -->
+<div class="section-header" style="margin-top: 40px;">
+  <div>
+    <h2 class="section-title">Deep Technical Finding Investigations</h2>
+    <p style="font-size: 0.9rem; color: var(--muted);">Detailed breakdown answering the 7 core cybersecurity analysis questions</p>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 40px;">
+
+  <!-- Investigation Card 1: A01 -->
+  <div class="cart-card" style="border-left: 5px solid var(--danger);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Finding 1: Insecure Direct Object Reference (IDOR)</h3>
+      <span class="badge badge-danger">High Severity | OWASP A01:2021</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-size: 0.9rem;">
+      <div style="font-weight: 700; color: var(--muted);">WHAT?</div>
+      <div>Horizontal authorization bypass permitting authenticated users to access confidential invoices belonging to arbitrary accounts.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHERE?</div>
+      <div><code>GET /orders/&lt;order_id&gt;</code> parameter <code>order_id</code> in URL path.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHY?</div>
+      <div>Server-side route handler performs database fetch using identifier supplied by client without cross-verifying ownership with <code>session['user_id']</code>.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">IMPACT?</div>
+      <div>Confidentiality breach: Customer John Doe (<code>user</code>) can extract full delivery addresses, customer names, item lists, and billing totals for all customers.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">EVIDENCE?</div>
+      <div style="background: var(--light); padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.8rem;">
+        [Placeholder - Replace with actual screenshot / HTTP response header from ZAP]<br>
+        Navigating to /orders/2 while logged in as user (id=2) yields HTTP 200 with Alice Walker's confidential shipping address.
+      </div>
+
+      <div style="font-weight: 700; color: var(--muted);">REMEDIATION?</div>
+      <div>Implemented ownership assertion: <code>if order['user_id'] != session['user_id'] and session['role'] != 'admin': abort(403)</code>.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">RETEST?</div>
+      <div>[Placeholder - Replace with actual retest output] In Fixed Mode, navigating to /orders/2 immediately aborts with HTTP 403 Forbidden and writes event to <code>logs/security.log</code>.</div>
+    </div>
+  </div>
+
+  <!-- Investigation Card 2: A03 -->
+  <div class="cart-card" style="border-left: 5px solid var(--danger);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Finding 2: SQL Injection in Product Search</h3>
+      <span class="badge badge-danger">High Severity | OWASP A03:2021</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-size: 0.9rem;">
+      <div style="font-weight: 700; color: var(--muted);">WHAT?</div>
+      <div>Improper neutralization of special elements used in an SQL command (CWE-89).</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHERE?</div>
+      <div><code>GET /products?q=&lt;query&gt;</code> query string parameter <code>q</code>.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHY?</div>
+      <div>Direct string interpolation (<code>f"SELECT ... LIKE '%{q}%'"</code>) allowing user input to escape SQL string literal delimiters.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">IMPACT?</div>
+      <div>Data exposure. Allows unintended database queries and arbitrary row enumeration across local database tables.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">EVIDENCE?</div>
+      <div style="background: var(--light); padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.8rem;">
+        [Placeholder - Replace with actual ZAP SQL injection alert screenshot]<br>
+        Payload <code>' OR 1=1 --</code> forces truth condition, returning all products in database.
+      </div>
+
+      <div style="font-weight: 700; color: var(--muted);">REMEDIATION?</div>
+      <div>Parameterized query implementation: <code>cursor.execute("SELECT ... WHERE name LIKE ? OR description LIKE ?", (f"%{q}%", f"%{q}%"))</code>.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">RETEST?</div>
+      <div>[Placeholder - Replace with actual retest output] Payload <code>' OR 1=1 --</code> treated as literal search string; returns 0 matches without syntax error.</div>
+    </div>
+  </div>
+
+  <!-- Investigation Card 3: A05 -->
+  <div class="cart-card" style="border-left: 5px solid var(--warning);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="font-size: 1.15rem; font-weight: 800;">Finding 3: Security Misconfiguration (Debug Mode & Missing Headers)</h3>
+      <span class="badge badge-warning">Medium Severity | OWASP A05:2021</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-size: 0.9rem;">
+      <div style="font-weight: 700; color: var(--muted);">WHAT?</div>
+      <div>Debug mode enabled in runtime environment; missing defense-in-depth HTTP headers (X-Frame-Options, CSP, nosniff).</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHERE?</div>
+      <div>Global HTTP response headers and <code>GET /debug/crash-test</code>.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">WHY?</div>
+      <div>Development convenience settings retained in active configuration; lack of header injection middleware.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">IMPACT?</div>
+      <div>Leakage of server path, framework internals, environment variables; susceptibility to Clickjacking attacks.</div>
+
+      <div style="font-weight: 700; color: var(--muted);">EVIDENCE?</div>
+      <div style="background: var(--light); padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.8rem;">
+        [Placeholder - Replace with actual ZAP Header Check alert]<br>
+        ZAP flags "Anti-clickjacking Header Not Set" (10020) and "Content-Security-Policy Header Not Set" (10038).
+      </div>
+
+      <div style="font-weight: 700; color: var(--muted);">REMEDIATION?</div>
+      <div>Disabled <code>DEBUG=False</code>, registered custom error handlers, added security headers middleware (<code>X-Frame-Options: DENY</code>, <code>Content-Security-Policy</code>).</div>
+
+      <div style="font-weight: 700; color: var(--muted);">RETEST?</div>
+      <div>[Placeholder - Replace with actual retest output] Rescanning with ZAP confirms absence of missing header alerts; headers verified via curl / browser inspector.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BEFORE VS AFTER COMPARISON TABLE -->
+<div class="section-header">
+  <h2 class="section-title">Before vs After Remediation Comparison Matrix</h2>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Finding / Category</th>
+        <th>Before Fix (Vulnerable State)</th>
+        <th>Remediation Applied</th>
+        <th>After Fix (Fixed State)</th>
+        <th>Verification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A01: Broken Access Control</strong></td>
+        <td><code>/orders/2</code> accessible by user <code>user</code> without ownership check</td>
+        <td>Strict authorization check comparing <code>session['user_id']</code> and role</td>
+        <td>Returns <code>403 Forbidden</code> and logs security audit event</td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+      <tr>
+        <td><strong>A03: SQL Injection</strong></td>
+        <td>Raw SQL string concatenation in search query (<code>' OR 1=1 --</code> succeeds)</td>
+        <td>SQLite parameterized query with bound parameters (<code>?</code>)</td>
+        <td>Payload safely treated as literal text; returns 0 matches</td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+      <tr>
+        <td><strong>A05: Security Misconfiguration</strong></td>
+        <td><code>DEBUG=True</code>, raw traceback exposure, missing security headers</td>
+        <td><code>DEBUG=False</code>, custom error pages, added CSP & X-Frame-Options</td>
+        <td>Generic error page displayed; ZAP header alerts eliminated</td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+      <tr>
+        <td><strong>A06: Outdated Components</strong></td>
+        <td><code>Werkzeug==2.2.2</code> (Known multipart DoS CVE-2023-25577)</td>
+        <td>Upgraded dependencies in <code>requirements-fixed.txt</code> to Werkzeug &ge; 3.0.3</td>
+        <td>Clean SCA scan with zero known high-severity vulnerabilities</td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+      <tr>
+        <td><strong>A07: Session Weakness</strong></td>
+        <td>Session cookies missing <code>HttpOnly</code> and <code>SameSite</code> flags</td>
+        <td>Hardened session cookie flags (<code>HttpOnly=True</code>, <code>SameSite=Lax</code>)</td>
+        <td>Client-side script cannot access session cookie via <code>document.cookie</code></td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+      <tr>
+        <td><strong>A09: Logging & Monitoring</strong></td>
+        <td>Security events (failed logins, IDOR probes) occur silently</td>
+        <td>Structured audit logging into <code>logs/security.log</code> and DB table</td>
+        <td>All suspicious actions and auth events actively monitored and alerted</td>
+        <td><span class="badge badge-success">Verified</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FORM TO MANUALLY RECORD NEW ACTUAL ZAP ALERT -->
+<div class="cart-card" id="add-finding" style="margin-top: 40px;">
+  <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px;">Record Actual OWASP ZAP Scan Alert</h3>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;">
+    Use this form to record real scanner findings after completing your OWASP ZAP spider and active scan sessions.
+  </p>
+
+  <form action="{{ url_for('security_report_add') }}" method="POST">
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+      <div class="form-group">
+        <label class="form-label" for="alert_name">Alert Name</label>
+        <input type="text" id="alert_name" name="alert_name" class="form-control" placeholder="e.g. Cross-Domain Misconfiguration" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="severity">Severity</label>
+        <select id="severity" name="severity" class="form-control" required>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+          <option value="Informational">Informational</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="owasp_category">OWASP Category</label>
+        <select id="owasp_category" name="owasp_category" class="form-control" required>
+          <option value="A01:2021-Broken Access Control">A01 Broken Access Control</option>
+          <option value="A02:2021-Cryptographic Failures">A02 Cryptographic Failures</option>
+          <option value="A03:2021-Injection">A03 Injection</option>
+          <option value="A04:2021-Insecure Design">A04 Insecure Design</option>
+          <option value="A05:2021-Security Misconfiguration">A05 Security Misconfiguration</option>
+          <option value="A06:2021-Vulnerable Components">A06 Vulnerable Components</option>
+          <option value="A07:2021-Auth Failures">A07 Auth Failures</option>
+          <option value="A09:2021-Logging Failures">A09 Logging Failures</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="affected_url">Affected URL / Endpoint</label>
+      <input type="text" id="affected_url" name="affected_url" class="form-control" placeholder="http://127.0.0.1:8080/products" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="description">Alert Description & ZAP Evidence</label>
+      <textarea id="description" name="description" rows="3" class="form-control" placeholder="Enter ZAP alert description and technical evidence..." required></textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div class="form-group">
+        <label class="form-label" for="evidence">Technical Evidence / Response Snippet</label>
+        <input type="text" id="evidence" name="evidence" class="form-control" placeholder="Header value or HTTP body excerpt">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="status">Remediation Status</label>
+        <select id="status" name="status" class="form-control" required>
+          <option value="Pending Test">Pending Test</option>
+          <option value="Vulnerable (Dev Mode)">Vulnerable (Dev Mode)</option>
+          <option value="Remediated (Fixed Mode)">Remediated (Fixed Mode)</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg">Add ZAP Finding to Report</button>
+  </form>
+</div>
+{% endblock %}

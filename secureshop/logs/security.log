@@ -1,0 +1,16 @@
+[2026-10-01 14:47:12] [INFO] [AUTH_LOGIN_SUCCESS] User: user | IP: 127.0.0.1 | Details: User 'user' successfully logged in
+[2026-10-01 14:47:12] [INFO] [AUTH_LOGOUT] User: user | IP: 127.0.0.1 | Details: User 'user' logged out
+[2026-10-01 14:47:12] [CRITICAL] [UNAUTHORIZED_ACCESS_IDOR] User: user | IP: 127.0.0.1 | Details: User 'user' (ID: 2) attempted unauthorized access to Order #2 belonging to User ID 3
+[2026-10-01 14:49:35] [INFO] [AUTH_LOGIN_SUCCESS] User: user | IP: 127.0.0.1 | Details: User 'user' successfully logged in
+[2026-10-01 14:49:35] [INFO] [AUTH_LOGOUT] User: user | IP: 127.0.0.1 | Details: User 'user' logged out
+[2026-10-01 14:49:35] [CRITICAL] [UNAUTHORIZED_ACCESS_IDOR] User: user | IP: 127.0.0.1 | Details: User 'user' (ID: 2) attempted unauthorized access to Order #2 belonging to User ID 3
+[2026-10-01 15:08:23] [INFO] [AUTH_LOGOUT] User: siri | IP: 127.0.0.1 | Details: User 'siri' logged out
+[2026-10-01 15:14:34] [INFO] [AUTH_LOGIN_SUCCESS] User: user | IP: 127.0.0.1 | Details: User 'user' successfully logged in
+[2026-10-01 15:14:34] [INFO] [AUTH_LOGOUT] User: user | IP: 127.0.0.1 | Details: User 'user' logged out
+[2026-10-01 15:14:35] [CRITICAL] [UNAUTHORIZED_ACCESS_IDOR] User: user | IP: 127.0.0.1 | Details: User 'user' (ID: 2) attempted unauthorized access to Order #2 belonging to User ID 3
+[2026-10-01 15:15:29] [INFO] [AUTH_LOGIN_SUCCESS] User: user | IP: 127.0.0.1 | Details: User 'user' successfully logged in
+[2026-10-01 15:15:29] [INFO] [AUTH_LOGOUT] User: user | IP: 127.0.0.1 | Details: User 'user' logged out
+[2026-10-01 15:15:29] [CRITICAL] [UNAUTHORIZED_ACCESS_IDOR] User: user | IP: 127.0.0.1 | Details: User 'user' (ID: 2) attempted unauthorized access to Order #2 belonging to User ID 3
+[2026-10-01 15:17:16] [INFO] [AUTH_LOGIN_SUCCESS] User: user | IP: 127.0.0.1 | Details: User 'user' successfully logged in
+[2026-10-01 15:17:16] [INFO] [AUTH_LOGOUT] User: user | IP: 127.0.0.1 | Details: User 'user' logged out
+[2026-10-01 15:17:16] [CRITICAL] [UNAUTHORIZED_ACCESS_IDOR] User: user | IP: 127.0.0.1 | Details: User 'user' (ID: 2) attempted unauthorized access to Order #2 belonging to User ID 3

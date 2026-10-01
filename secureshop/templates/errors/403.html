@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden - SecureShop{% endblock %}
+
+{% block content %}
+<div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 60px 20px; text-align: center; max-width: 600px; margin: 40px auto; box-shadow: var(--shadow);">
+  <div style="font-size: 3.5rem; margin-bottom: 12px;">🚫</div>
+  <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--danger); margin-bottom: 8px;">403 - Access Forbidden</h1>
+  <p style="color: var(--slate); margin-bottom: 16px;">
+    {{ error_message or "You do not have authorization to view or modify this requested resource." }}
+  </p>
+
+  <div style="background: var(--light); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 0.85rem; margin-bottom: 24px; text-align: left;">
+    <strong>OWASP A01 (Broken Access Control) Defense Active:</strong><br>
+    The server verified that this resource does not belong to your authenticated session. This security event has been logged to the security audit trail.
+  </div>
+
+  <div style="display: flex; justify-content: center; gap: 12px;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary">My Orders</a>
+  </div>
+</div>
+{% endblock %}

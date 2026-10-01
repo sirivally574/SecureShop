@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product['name'] }} - SecureShop{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+  <a href="{{ url_for('products') }}" style="color: var(--muted); font-size: 0.85rem;">&larr; Back to Catalogue</a>
+</div>
+
+<div class="product-detail-view">
+  <div class="product-gallery">
+    <img src="{{ url_for('static', filename='images/' + product['image']) }}" alt="{{ product['name'] }}" onerror="this.src='{{ url_for('static', filename='images/headphones.svg') }}'">
+  </div>
+
+  <div class="product-info-detail">
+    <span class="detail-badge">{{ product['category'] }}</span>
+    <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2;">{{ product['name'] }}</h1>
+    
+    <div style="font-size: 2rem; font-weight: 800; color: var(--dark); margin-bottom: 16px;">
+      ${{ "%.2f"|format(product['price']) }}
+    </div>
+
+    {% if product['stock'] > 0 %}
+      <div class="stock-tag">
+        <span style="display: inline-block; width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
+        In Stock ({{ product['stock'] }} units available)
+      </div>
+    {% else %}
+      <div class="stock-tag low">
+        <span style="display: inline-block; width: 8px; height: 8px; background: var(--danger); border-radius: 50%;"></span>
+        Currently Out of Stock
+      </div>
+    {% endif %}
+
+    <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 0; margin-bottom: 24px;">
+      <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; color: var(--slate);">Description</h4>
+      <p style="font-size: 0.95rem; color: var(--muted); line-height: 1.6;">
+        {{ product['description'] }}
+      </p>
+    </div>
+
+    <!-- ADD TO CART FORM -->
+    <form action="{{ url_for('cart_add', product_id=product['id']) }}" method="POST">
+      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+        <label for="quantity" style="font-size: 0.85rem; font-weight: 600;">Qty:</label>
+        <select name="quantity" id="quantity" class="form-control" style="width: 80px;">
+          {% for i in range(1, 6) %}
+            <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;" {% if product['stock'] <= 0 %}disabled{% endif %}>
+          Add to Cart
+        </button>
+      </div>
+    </form>
+
+    <div style="background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; gap: 16px; font-size: 0.8rem; color: var(--slate);">
+      <div>✓ Free standard shipping on orders over $50</div>
+      <div>✓ 1-year hardware warranty included</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

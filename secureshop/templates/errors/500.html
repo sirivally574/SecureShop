@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}500 Internal Server Error - SecureShop{% endblock %}
+
+{% block content %}
+<div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; max-width: 800px; margin: 30px auto; box-shadow: var(--shadow);">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <div style="font-size: 3rem; margin-bottom: 8px;">⚠️</div>
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--danger); margin-bottom: 8px;">500 - Internal Server Error</h1>
+    <p style="color: var(--muted);">An unexpected internal server condition occurred while processing your request.</p>
+  </div>
+
+  {% if show_traceback and security_mode == 'vulnerable' %}
+    <!-- INTENTIONALLY VULNERABLE - A05 SECURITY MISCONFIGURATION -->
+    <div style="background: #0F172A; color: #EF4444; border-radius: var(--radius); padding: 20px; margin-bottom: 24px;">
+      <div style="color: #F59E0B; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem;">
+        ⚡ OWASP A05 DEMO: Verbose Server Traceback Leakage (Vulnerable Mode Active)
+      </div>
+      <div style="color: #CBD5E1; font-size: 0.8rem; margin-bottom: 12px;">
+        Environment: <code>DEBUG=True</code> | Framework: <code>Flask / Python 3.11</code> | Internal Path Disclosed
+      </div>
+      <pre style="white-space: pre-wrap; font-family: Consolas, monospace; font-size: 0.8rem; color: #FCA5A5; max-height: 250px; overflow-y: auto;">{{ error_details or 'Exception: Simulated crash test in debug environment.\nTraceback (most recent call last):\n  File "app.py", line 412, in debug_crash\n    raise RuntimeError("Intentional unhandled exception for A05 lab testing")\nRuntimeError: Intentional unhandled exception for A05 lab testing' }}</pre>
+    </div>
+  {% else %}
+    <!-- SECURITY FIX - SANITIZED ERROR HANDLING -->
+    <div style="background: var(--light); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; text-align: center;">
+      <p style="font-size: 0.9rem; color: var(--slate); margin-bottom: 8px;">
+        The technical details of this error have been logged internally for system administration. No stack trace or runtime internals are revealed to clients.
+      </p>
+      <span class="badge badge-success">A05 Hardened: Implementation Details Concealed</span>
+    </div>
+  {% endif %}
+
+  <div style="text-align: center;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Safety (Home)</a>
+    <a href="{{ url_for('security_lab') }}" class="btn btn-secondary" style="margin-left: 10px;">Security Lab</a>
+  </div>
+</div>
+{% endblock %}

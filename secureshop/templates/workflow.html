@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Red Team Security Lifecycle - SecureShop{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">🔄 The 8-Stage Application Security Lifecycle</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">
+      A structured methodology for building, assessing, exploiting safely, remediating, and validating web applications
+    </p>
+  </div>
+  <a href="{{ url_for('security_lab') }}" class="btn btn-secondary btn-sm">🧪 Open Security Lab</a>
+</div>
+
+<!-- WORKFLOW TRACK / TIMELINE -->
+<div class="workflow-track">
+  <div class="workflow-step active">
+    <div class="step-node">1</div>
+    <div class="step-name">BUILD</div>
+    <div class="step-desc">Develop Application</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">2</div>
+    <div class="step-name">EXPOSE</div>
+    <div class="step-desc">Run on Localhost</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">3</div>
+    <div class="step-name">SCAN</div>
+    <div class="step-desc">DAST with ZAP</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">4</div>
+    <div class="step-name">INVESTIGATE</div>
+    <div class="step-desc">Analyze Root Cause</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">5</div>
+    <div class="step-name">EXPLOIT</div>
+    <div class="step-desc">Safe Lab Validation</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">6</div>
+    <div class="step-name">FIX</div>
+    <div class="step-desc">Code Remediation</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">7</div>
+    <div class="step-name">RETEST</div>
+    <div class="step-desc">Verify Elimination</div>
+  </div>
+  <div class="workflow-step active">
+    <div class="step-node">8</div>
+    <div class="step-name">REPORT</div>
+    <div class="step-desc">Before vs After</div>
+  </div>
+</div>
+
+<!-- DETAILED STAGES BREAKDOWN -->
+<div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
+
+  <div class="cart-card" style="border-left: 5px solid #4F46E5;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem;">1</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 1: BUILD – SecureShop E-Commerce Development</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Develop a realistic e-commerce application using Python Flask, SQLite, and modern HTML5/CSS3.
+      Functionalities include user authentication, product catalogue browsing, keyword search, shopping cart management, order placement, customer invoice tracking, and an administrative back-office panel.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #0EA5E9;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #0EA5E9; color: #0EA5E9;">2</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 2: EXPOSE – Controlled Local Sandbox Deployment</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Run the application strictly on local loopback addresses (<code>http://127.0.0.1:8080</code> or <code>http://localhost:8080</code>).
+      Confirm that all endpoints are operational and strictly isolated from production networks, public cloud infrastructure, and unauthorized third-party targets.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #F59E0B;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #F59E0B; color: #F59E0B;">3</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 3: SCAN – Automated Dynamic Application Security Testing (DAST)</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Configure OWASP ZAP (Zed Attack Proxy) to crawl the application using the Traditional Spider and AJAX Spider.
+      Execute an Active Scan against the mapped routes to identify missing security headers, SQL injection vectors, and configuration vulnerabilities.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #8B5CF6;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #8B5CF6; color: #8B5CF6;">4</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 4: INVESTIGATE – Root Cause & Contextual Analysis</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Critically evaluate every scanner alert instead of blindly accepting automated outputs.
+      Answer the 7 essential analytical questions for each finding: <em>WHAT, WHERE, WHY, IMPACT, EVIDENCE, REMEDIATION, and RETEST</em>.
+      Filter out potential false positives and contextualize findings within SecureShop's architecture.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #EF4444;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #EF4444; color: #EF4444;">5</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 5: EXPLOIT / VALIDATE SAFELY – Controlled Proof-of-Concept Validation</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Manually validate the identified vulnerabilities within the local lab without damaging system integrity:
+      <br>&bull; <strong>A01 (IDOR):</strong> Authenticate as <code>user</code> and access <code>/orders/2</code> to inspect Alice's invoice.
+      <br>&bull; <strong>A03 (SQLi):</strong> Input <code>' OR 1=1 --</code> in the search bar to demonstrate unescaped SQL execution.
+      <br>&bull; <strong>A05 (Misconfiguration):</strong> Trigger <code>/debug/crash-test</code> to observe traceback information leakage.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #10B981;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #10B981; color: #10B981;">6</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 6: FIX – Implementation of Secure Coding Defenses</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Apply robust software security mitigations:
+      <br>&bull; Parameterize all database queries using prepared statements.
+      <br>&bull; Implement server-side authorization checks comparing session IDs against database record owners.
+      <br>&bull; Disable debug mode and inject defensive headers (<code>Content-Security-Policy</code>, <code>X-Frame-Options</code>).
+      <br>&bull; Upgrade outdated packages in <code>requirements-fixed.txt</code>.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #059669;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #059669; color: #059669;">7</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 7: RETEST – Verification and Regression Testing</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Switch the application into <strong>FIXED MODE</strong> and repeat the testing procedure:
+      <br>&bull; Rescan the application with OWASP ZAP to verify alert resolution.
+      <br>&bull; Re-attempt manual payloads (verify <code>403 Forbidden</code> on IDOR and 0 results on SQL injection).
+      <br>&bull; Check <code>logs/security.log</code> to confirm security events were captured accurately.
+    </p>
+  </div>
+
+  <div class="cart-card" style="border-left: 5px solid #334155;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="step-node" style="margin: 0; width: 36px; height: 36px; font-size: 0.9rem; border-color: #334155; color: #334155;">8</span>
+      <h3 style="font-size: 1.2rem; font-weight: 700;">Stage 8: REPORT – Documentation and Evidence Presentation</h3>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+      Compile comprehensive cybersecurity documentation including <code>VULNERABILITY_MATRIX.md</code>, <code>SECURITY_FINDINGS.md</code>, and <code>REMEDIATION.md</code>.
+      Demonstrate a side-by-side comparison of the application's before vs after security posture for college evaluation.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Order History - SecureShop{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Your Order History</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">Review your recent purchases and view invoices</p>
+  </div>
+  <a href="{{ url_for('products') }}" class="btn btn-outline-primary btn-sm">Shop More Products</a>
+</div>
+
+<!-- A01 Educational Notice -->
+{% if security_mode == 'vulnerable' %}
+  <div style="background: var(--danger-bg); border-left: 4px solid var(--danger); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 24px; font-size: 0.85rem; color: #991B1B;">
+    <strong>⚡ OWASP A01 (Broken Access Control / IDOR) Active:</strong>
+    In this vulnerable mode, the <code>/orders/&lt;id&gt;</code> endpoint does not verify if the requested order belongs to your session.
+    For example, user <code>user</code> owns Order #1 and #3. Alice owns Order #2.
+    Navigating directly to <a href="{{ url_for('order_details', order_id=2) }}" style="color: #991B1B; text-decoration: underline; font-weight: 700;">/orders/2</a> exposes Alice's private invoice!
+  </div>
+{% else %}
+  <div style="background: var(--success-bg); border-left: 4px solid var(--success); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 24px; font-size: 0.85rem; color: #065F46;">
+    <strong>🛡️ OWASP A01 Remediated:</strong>
+    Strict server-side authorization check enabled on <code>/orders/&lt;id&gt;</code>. Trying to view another user's order will abort with <code>403 Forbidden</code> and record an audit log event.
+  </div>
+{% endif %}
+
+{% if orders %}
+  <div class="data-table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Date Placed</th>
+          <th>Shipping Address</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td style="font-weight: 700;">#{{ "%04d"|format(order['id']) }}</td>
+            <td>{{ order['created_at'][:19] }}</td>
+            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ order['shipping_address'] }}</td>
+            <td style="font-weight: 700;">${{ "%.2f"|format(order['total']) }}</td>
+            <td>
+              {% if order['status'] == 'Delivered' %}
+                <span class="badge badge-success">Delivered</span>
+              {% elif order['status'] == 'Shipped' %}
+                <span class="badge badge-info">Shipped</span>
+              {% else %}
+                <span class="badge badge-warning">Processing</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('order_details', order_id=order['id']) }}" class="btn btn-secondary btn-sm">
+                View Invoice
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 60px 20px; text-align: center; margin-bottom: 40px;">
+    <div style="font-size: 3rem; margin-bottom: 12px;">📦</div>
+    <h3>No orders found</h3>
+    <p style="color: var(--muted); margin-bottom: 20px;">You haven't placed any orders with SecureShop yet.</p>
+    <a href="{{ url_for('products') }}" class="btn btn-primary">Browse Catalogue</a>
+  </div>
+{% endif %}
+{% endblock %}

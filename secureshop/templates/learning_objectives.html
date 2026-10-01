@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Assignment Learning Objectives - SecureShop{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">🎯 College Assignment Learning Objectives</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">
+      Academic competency tracking and pedagogical mapping for the Red Team / Application Security Project
+    </p>
+  </div>
+  <a href="{{ url_for('security_lab') }}" class="btn btn-secondary btn-sm">🧪 Open Security Lab</a>
+</div>
+
+<div class="cart-card" style="margin-bottom: 30px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
+    <div>
+      <h3 style="font-size: 1.15rem; font-weight: 700;">Curriculum Progress Checklist</h3>
+      <p style="font-size: 0.85rem; color: var(--muted);">10 Core competencies demonstrated by SecureShop</p>
+    </div>
+    <span class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;">10 / 10 Demonstrated</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+
+    <!-- Objective 1 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">1. Build a Functional Web Application</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Developed complete e-commerce store with catalog, search, cart, checkout, orders, customer profiles, and administrator backend.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 2 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">2. Identify Technologies and Dependencies</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Audited Python 3.11, Flask WSGI framework, Jinja2 template engine, Werkzeug server library, and SQLite relational database.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 3 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">3. Understand How Outdated Components Create Security Risk (A06)</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Documented known vulnerabilities in legacy Werkzeug 2.2.2 (CVE-2023-25577 multipart DoS) and performed comparative software composition analysis.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 4 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">4. Use OWASP ZAP as a DAST / Security-Testing Tool</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Created complete testing procedure in <code>ZAP_TESTING.md</code> covering automated spidering, active scanning, and proxy interception against <code>http://127.0.0.1:8080</code>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 5 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">5. Interpret Scanner Findings Instead of Blindly Trusting Them</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Analyzed scanner alerts contextually, distinguishing between informational headers, high-impact logic flaws (IDOR), and actual exploitable injection points.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 6 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">6. Manually Validate Selected Findings in a Controlled Environment</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Created step-by-step safe PoCs for IDOR parameter tampering on <code>/orders/2</code> and boolean-based SQL injection on product search.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 7 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">7. Map Findings to OWASP Categories</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Accurately mapped all weaknesses to OWASP Top 10:2021 standards (A01 Broken Access Control, A03 Injection, A05 Security Misconfiguration, A06 Outdated Components, A07 Auth Failures, A09 Logging Failures).
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 8 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">8. Remediate Vulnerabilities</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Implemented parameterized SQL queries, server-side session authorization checks, custom error sanitization, secure session flags, and HTTP security response headers.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 9 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">9. Retest the Application</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Validated that Fixed Mode blocks all unauthorized attacks, rejects malicious payloads, and renders hardened security headers.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objective 10 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--light); border-radius: var(--radius);">
+      <div style="color: var(--success); font-size: 1.3rem;">✅</div>
+      <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700;">10. Produce Evidence Showing Before vs After Security Posture</h4>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-top: 2px;">
+          Built the live <code>/security-report</code> and <code>/security-lab</code> dashboards with structured investigation cards and side-by-side matrices for college lab presentation.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

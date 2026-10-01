@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Products - SecureShop Catalogue{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Product Catalogue</h1>
+    {% if search_query %}
+      <p style="font-size: 0.9rem; color: var(--muted);">
+        Search results for: <strong>"{{ search_query }}"</strong> ({{ products|length }} items found)
+        <a href="{{ url_for('products') }}" style="margin-left: 8px; color: var(--danger); font-size: 0.8rem;">Clear Search &times;</a>
+      </p>
+    {% elif active_category %}
+      <p style="font-size: 0.9rem; color: var(--muted);">
+        Category: <strong>{{ active_category }}</strong> ({{ products|length }} items)
+        <a href="{{ url_for('products') }}" style="margin-left: 8px; color: var(--danger); font-size: 0.8rem;">Show All &times;</a>
+      </p>
+    {% else %}
+      <p style="font-size: 0.9rem; color: var(--muted);">Explore all available high-grade accessories and electronics</p>
+    {% endif %}
+  </div>
+
+  <!-- A03 Educational hint in Vulnerable Mode -->
+  {% if security_mode == 'vulnerable' and search_query %}
+    <div style="background: var(--warning-bg); border: 1px solid var(--warning); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 0.8rem; color: #92400E;">
+      ⚡ <strong>A03 Note:</strong> Search query processed via raw SQL interpolation in Vulnerable Mode.
+    </div>
+  {% endif %}
+</div>
+
+<!-- CATEGORY FILTER PILLS -->
+<div class="category-bar">
+  <a href="{{ url_for('products') }}" class="category-pill {% if not active_category and not search_query %}active{% endif %}">All</a>
+  <a href="{{ url_for('products', category='Electronics') }}" class="category-pill {% if active_category == 'Electronics' %}active{% endif %}">Electronics</a>
+  <a href="{{ url_for('products', category='Accessories') }}" class="category-pill {% if active_category == 'Accessories' %}active{% endif %}">Accessories</a>
+  <a href="{{ url_for('products', category='Apparel') }}" class="category-pill {% if active_category == 'Apparel' %}active{% endif %}">Apparel</a>
+  <a href="{{ url_for('products', category='Home & Living') }}" class="category-pill {% if active_category == 'Home & Living' %}active{% endif %}">Home & Living</a>
+</div>
+
+<!-- PRODUCTS GRID -->
+{% if products %}
+  <div class="products-grid">
+    {% for product in products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img src="{{ url_for('static', filename='images/' + product['image']) }}" alt="{{ product['name'] }}" onerror="this.src='{{ url_for('static', filename='images/headphones.svg') }}'">
+        </div>
+        <div class="product-body">
+          <span class="product-category">{{ product['category'] }}</span>
+          <h3 class="product-name">{{ product['name'] }}</h3>
+          <p class="product-desc">{{ product['description'] }}</p>
+          <div class="product-footer">
+            <span class="product-price">${{ "%.2f"|format(product['price']) }}</span>
+            <div class="product-actions">
+              <a href="{{ url_for('product_details', product_id=product['id']) }}" class="btn btn-secondary btn-sm">Details</a>
+              <form action="{{ url_for('cart_add', product_id=product['id']) }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 60px 20px; text-align: center; margin-bottom: 40px;">
+    <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
+    <h3>No matching products found</h3>
+    <p style="color: var(--muted); margin-bottom: 20px;">Try adjusting your keyword or clearing the filters.</p>
+    <a href="{{ url_for('products') }}" class="btn btn-primary">Browse All Products</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SecureShop Control Center{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Administrator Dashboard</h1>
+    <p style="font-size: 0.9rem; color: var(--muted);">Internal management and store operations overview</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="{{ url_for('admin_products') }}" class="btn btn-primary btn-sm">📦 Manage Products</a>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-secondary btn-sm">👥 Manage Users</a>
+  </div>
+</div>
+
+<!-- METRICS CARDS -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div>
+      <div class="metric-val">{{ total_users }}</div>
+      <div class="metric-label">Registered Users</div>
+    </div>
+    <div style="font-size: 2rem;">👥</div>
+  </div>
+
+  <div class="metric-card">
+    <div>
+      <div class="metric-val">{{ total_products }}</div>
+      <div class="metric-label">Active Products</div>
+    </div>
+    <div style="font-size: 2rem;">📦</div>
+  </div>
+
+  <div class="metric-card">
+    <div>
+      <div class="metric-val">{{ total_orders }}</div>
+      <div class="metric-label">Total Orders</div>
+    </div>
+    <div style="font-size: 2rem;">🛍️</div>
+  </div>
+
+  <div class="metric-card">
+    <div>
+      <div class="metric-val">${{ "%.2f"|format(total_revenue) }}</div>
+      <div class="metric-label">Gross Revenue</div>
+    </div>
+    <div style="font-size: 2rem;">💵</div>
+  </div>
+</div>
+
+<!-- RECENT ORDERS SECTION -->
+<div class="section-header">
+  <h2 style="font-size: 1.2rem; font-weight: 700;">Recent Store Orders</h2>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Shipping Address</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in recent_orders %}
+        <tr>
+          <td style="font-weight: 700;">#{{ "%04d"|format(order['id']) }}</td>
+          <td>
+            <strong>{{ order['customer_name'] }}</strong>
+            <div style="font-size: 0.75rem; color: var(--muted);">{{ order['customer_email'] }}</div>
+          </td>
+          <td>{{ order['created_at'][:16] }}</td>
+          <td style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ order['shipping_address'] }}</td>
+          <td style="font-weight: 700;">${{ "%.2f"|format(order['total']) }}</td>
+          <td>
+            <span class="badge {% if order['status'] == 'Delivered' %}badge-success{% elif order['status'] == 'Shipped' %}badge-info{% else %}badge-warning{% endif %}">
+              {{ order['status'] }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('order_details', order_id=order['id']) }}" class="btn btn-secondary btn-sm">Inspect</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- RECENT SECURITY LOGS (A09 DEMONSTRATION) -->
+<div class="section-header">
+  <div>
+    <h2 style="font-size: 1.2rem; font-weight: 700;">Recent Security Events (A09 Audit)</h2>
+    <p style="font-size: 0.85rem; color: var(--muted);">Live audit records captured from application events</p>
+  </div>
+  <a href="{{ url_for('security_lab') }}" class="btn btn-outline-primary btn-sm">Full Security Lab &rarr;</a>
+</div>
+
+<div class="data-table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Event Type</th>
+        <th>User</th>
+        <th>IP Address</th>
+        <th>Severity</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in recent_logs %}
+        <tr>
+          <td style="font-size: 0.8rem; font-family: monospace;">{{ log['timestamp'][:19] }}</td>
+          <td><code style="font-size: 0.8rem; font-weight: 700;">{{ log['event_type'] }}</code></td>
+          <td>{{ log['username'] or 'ANONYMOUS' }}</td>
+          <td style="font-size: 0.8rem; font-family: monospace;">{{ log['ip_address'] }}</td>
+          <td>
+            <span class="badge {% if log['severity'] == 'CRITICAL' %}badge-danger{% elif log['severity'] == 'WARNING' %}badge-warning{% else %}badge-info{% endif %}">
+              {{ log['severity'] }}
+            </span>
+          </td>
+          <td style="font-size: 0.85rem;">{{ log['details'] }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--muted); padding: 20px;">
+            No audit logs captured yet. (Note: In Vulnerable Mode, minimal logging is recorded).
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

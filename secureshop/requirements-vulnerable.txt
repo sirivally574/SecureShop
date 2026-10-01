@@ -1,0 +1,11 @@
+# SecureShop - Vulnerable Dependencies Baseline (Lab Testing Only)
+# OWASP A06: Vulnerable and Outdated Components Demonstration
+#
+# This file intentionally pins older releases known to have published CVEs
+# for scanning with pip-audit, safety, or OWASP Dependency-Check.
+
+Flask==2.2.5
+Werkzeug==2.2.2
+Jinja2==3.1.2
+itsdangerous==2.1.2
+click==8.1.3

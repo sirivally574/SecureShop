@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice #{{ "%04d"|format(order['id']) }} - SecureShop{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <a href="{{ url_for('orders') }}" class="btn btn-secondary btn-sm">&larr; Back to Orders</a>
+  <span style="font-size: 0.85rem; color: var(--muted);">Order Date: {{ order['created_at'][:19] }}</span>
+</div>
+
+<!-- A01 IDOR Exploit Inspection Banner -->
+{% if order['user_id'] != session.get('user_id') and session.get('role') != 'admin' %}
+  <div style="background: var(--danger-bg); border: 2px solid var(--danger); border-radius: var(--radius); padding: 16px; margin-bottom: 24px; color: #991B1B;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+      <span style="font-size: 1.4rem;">🚨</span>
+      <strong style="font-size: 1.05rem;">SECURITY VULNERABILITY VALIDATED (A01 - Broken Access Control / IDOR)</strong>
+    </div>
+    <p style="font-size: 0.9rem; line-height: 1.5;">
+      You are authenticated as <strong>{{ session.get('username') }}</strong> (User ID: <code>{{ session.get('user_id') }}</code>),
+      but you are currently viewing the confidential order invoice belonging to <strong>{{ order['customer_name'] }} ({{ order['customer_username'] }})</strong> (User ID: <code>{{ order['user_id'] }}</code>).
+    </p>
+    <div style="margin-top: 8px; font-size: 0.8rem; background: white; padding: 8px 12px; border-radius: 4px; border: 1px solid #FECACA;">
+      <strong>Root Cause:</strong> The application retrieved the order by ID directly from the URL without verifying that <code>order.user_id == session['user_id']</code>.
+    </div>
+  </div>
+{% endif %}
+
+<div class="cart-card" style="margin-bottom: 30px;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
+    <div>
+      <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="SecureShop" style="height: 34px; margin-bottom: 8px;">
+      <h2 style="font-size: 1.3rem; font-weight: 800;">Order Invoice #{{ "%04d"|format(order['id']) }}</h2>
+      <div style="font-size: 0.85rem; color: var(--muted);">Status: <strong>{{ order['status'] }}</strong></div>
+    </div>
+    <div style="text-align: right;">
+      <span class="badge {% if order['status'] == 'Delivered' %}badge-success{% elif order['status'] == 'Shipped' %}badge-info{% else %}badge-warning{% endif %}" style="font-size: 0.85rem; padding: 6px 12px;">
+        {{ order['status'] }}
+      </span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; font-size: 0.9rem;">
+    <div>
+      <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">Customer Details</h4>
+      <p><strong>Name:</strong> {{ order['customer_name'] }}</p>
+      <p><strong>Username:</strong> {{ order['customer_username'] }}</p>
+      <p><strong>Email:</strong> {{ order['customer_email'] }}</p>
+      <p><strong>Database User ID:</strong> <code>{{ order['user_id'] }}</code></p>
+    </div>
+    <div>
+      <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">Shipping Destination</h4>
+      <p style="white-space: pre-line; color: var(--dark); font-weight: 500;">{{ order['shipping_address'] }}</p>
+    </div>
+  </div>
+
+  <table class="data-table" style="margin-bottom: 20px;">
+    <thead>
+      <tr>
+        <th>Item Description</th>
+        <th>Quantity</th>
+        <th>Unit Price</th>
+        <th style="text-align: right;">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>
+            <strong>{{ item['product_name'] }}</strong>
+            <div style="font-size: 0.75rem; color: var(--muted);">Category: {{ item['category'] }}</div>
+          </td>
+          <td>{{ item['quantity'] }}</td>
+          <td>${{ "%.2f"|format(item['price']) }}</td>
+          <td style="text-align: right; font-weight: 700;">${{ "%.2f"|format(item['price'] * item['quantity']) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="text-align: right; border-top: 1px solid var(--border); padding-top: 16px;">
+    <span style="font-size: 1.1rem; color: var(--muted); margin-right: 12px;">Total Paid:</span>
+    <span style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">${{ "%.2f"|format(order['total']) }}</span>
+  </div>
+</div>
+{% endblock %}
